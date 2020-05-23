@@ -1,0 +1,62 @@
+---
+- name:         Mount NFS for Client
+  hosts:        client
+  become:       yes
+  
+  tasks:
+  - name:       Install NFS Utilities Software
+    yum:
+      name:     nfs-utils
+      state:    present
+        
+  - name:       Create Mount Point for Client
+    file:
+      path:     /mnt/test
+      state:    directory
+
+  - name: Mount NFS Share for NFS-SERVER
+    mount:
+      path: /mnt/test
+      src:  192.168.43.135:/home/public
+      fstype: nfs4
+      opts:  ro,bg,hard,nointr,rsize=32768,wsize=32768,tcp,vers=4,timeo=600
+      state: mounted
+
+  - name: start nfs
+    service:
+      name: nfs
+      state: started
+      enabled: yes
+
+  - name: Add port to firewalld
+    firewalld:
+      port: "{{ item }}"
+      permanent: yes
+      state: enabled
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    loop:
+     - 2048/tcp
+     - 2049/tcp
+     - 111/tcp
+
+  - firewalld:
+    service: nfs
+    permanent: yes
+    state: enabled
+
+  - firewalld:
+    service: mountd
+    permanent: yes
+    state: enabled 
+
+  - firewalld:
+    service: rpc-bind
+    permanent: yes
+    state: enabled 
+
+  - name: Restart service 
+    systemd:
+     state: restarted
+     daemon_reload: yes
+     name: firewalld
+     

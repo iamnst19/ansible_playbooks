@@ -1,0 +1,14 @@
+---
+# vars file for nfs-client-playbook
+
+# This task is used to mount a filesystem via NFS.
+# 
+# Variables you need to define:
+nfsserver:  localhost1
+nfspath:  /mnt/test
+nfsmount:  192.168.43.135:/home/public 
+nfsoptions: ro,bg,hard,nointr,rsize=32768,wsize=32768,tcp,vers=4,timeo=600
+#
+# Please note that the task will check if the {{nfsmount}} directory
+# exists and create it otherwise.
+#

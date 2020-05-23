@@ -1,0 +1,4 @@
+- hosts: localhost1
+  remote_user: osboxes
+  roles:
+    - { role: nfs-server-playbook }
