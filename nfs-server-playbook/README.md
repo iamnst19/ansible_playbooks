@@ -29,7 +29,7 @@ None.
 
     - hosts: db-servers
       roles:
-        - { role: geerlingguy.nfs }
+        - { role: nfs-server-playbook }
 
 ## License
 
