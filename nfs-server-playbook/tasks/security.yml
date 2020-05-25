@@ -30,12 +30,12 @@
     failed_when: no
     changed_when: no
 
-  - name: Security | Execute command if firewalld is installed
-    service:
-          name: firewalld
-          state: started
-          enabled: yes
-    when: rpm_check.rc == 0
+- name: Security | Execute command if firewalld is installed
+  service:
+      name: firewalld
+      state: started
+      enabled: yes
+  when: rpm_check.rc == 0
 
 - name: Security | Add port to firewalld
   become: yes
