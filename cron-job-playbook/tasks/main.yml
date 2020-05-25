@@ -1,0 +1,11 @@
+---
+# tasks file for cron-job-playbook
+- name: Install a yum package in Ansible
+    yum:
+      name: crontabs
+      state: present
+
+# jobs that need to run
+
+#- name: 
+#  module:

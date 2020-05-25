@@ -1,12 +1,9 @@
 ---
 dependencies: []
 
-galaxy_info:
-  author: geerlingguy
   description: NFS installation for Linux.
-  company: "Midwestern Mac, LLC"
-  license: "license (BSD, MIT)"
-  min_ansible_version: 2.4
+  company: "Storin"
+  min_ansible_version: 2.9.7
   platforms:
     - name: EL
       versions:

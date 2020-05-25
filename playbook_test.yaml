@@ -1,0 +1,56 @@
+- name: Configure line in file
+  hosts: server
+  remote_user: centos
+  become: true
+  become_method: sudo
+  
+  tasks:
+  - name: Security | Check if firewalld is installed
+    command: rpm -q firewalld
+    register: rpm_check
+    args:
+      warn: false
+    failed_when: no
+    changed_when: no
+
+  - name: Security | Execute command if firewalld is installed
+    service:
+       name: firewalld
+       state: started
+       enabled: yes
+    when: rpm_check.rc == 0
+
+  - name: Security | Add port to firewalld
+    become: yes
+    firewalld:
+      port: "{{ item }}"
+      permanent: yes
+      state: enabled
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    loop:
+     - 2048/tcp
+     - 2049/tcp
+     - 111/tcp
+
+  - name: Security | Make sure basic services can pass through firewall
+    become: yes
+    firewalld:
+      service: "{{ item }}"
+      permanent: true
+      state: enabled
+    with_items:
+      - nfs
+      - mountd
+      - rpc-bind
+    notify:
+      - restart firewalld
+    tags:
+      - nfs
+      - security
+
+  - name: Security | reload service firewalld
+    become: yes
+    systemd:
+      name: firewalld
+      state: reloaded
+

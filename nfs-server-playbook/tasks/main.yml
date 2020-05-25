@@ -36,41 +36,10 @@
     mode: 0644
   notify: reload nfs
 
+
+
 - name: Ensure nfs is running.
   become: yes
   service: "name={{ nfs_server_daemon }} state=started enabled=yes"
   when: nfs_exports|length
 
-
-- name: Add port to firewalld
-  become: yes
-  firewalld:
-    port: "{{ item }}"
-    permanent: yes
-    state: enabled
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-  loop:
-    - 2048/tcp
-    - 2049/tcp
-    - 111/tcp
-    
-
-    
-
-- become: yes
-  firewalld:
-    service: mountd 
-    permanent: yes
-    state: enabled 
-
-- become: yes
-  firewalld:
-    service: rpc-bind
-    permanent: yes
-    state: enabled 
-
-- name: reload service firewalld
-  become: yes
-  systemd:
-    name: firewalld
-    state: reloaded

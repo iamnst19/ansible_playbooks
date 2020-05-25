@@ -1,0 +1,73 @@
+# Basic security settings
+---
+# Selinux Settings
+# - name: Security | Make sure SELinux has the desired state ({{ rhbase_selinux_state }})
+#   selinux:
+#     policy: targeted
+#     state: "{{ nfs_selinux_state }}"
+#   tags:
+#     - rhbase
+#     - security
+
+# - name: Security | Enable SELinux booleans
+#   seboolean:
+#     name: "{{ item }}"
+#     state: true
+#     persistent: true
+#   with_items: "{{ nfs_selinux_booleans }}"
+#   when: rhbase_selinux_state == 'enforcing' or rhbase_selinux_state == 'permissive'
+#   tags:
+#     - rhbase
+#     - security
+
+# Firewall Settings    
+
+- name: Security | Check if firewalld is installed
+    command: rpm -q firewalld
+    register: rpm_check
+    args:
+      warn: false
+    failed_when: no
+    changed_when: no
+
+  - name: Security | Execute command if firewalld is installed
+    service:
+          name: firewalld
+          state: started
+          enabled: yes
+    when: rpm_check.rc == 0
+
+- name: Security | Add port to firewalld
+  become: yes
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  loop:
+    - 2048/tcp
+    - 2049/tcp
+    - 111/tcp
+
+- name: Security | Make sure basic services can pass through firewall
+  become: yes
+  firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items:
+    - nfs
+    - mountd
+    - rpc-bind
+  notify:
+    - restart firewalld
+  tags:
+    - nfs
+    - security
+
+- name: Security | reload service firewalld
+  become: yes
+  systemd:
+    name: firewalld
+    state: reloaded
+

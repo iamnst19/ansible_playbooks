@@ -1,0 +1,9 @@
+---
+# vars file for cron-job-playbook
+cron_name: 
+cron_job: 
+cron_minute:
+cron_hour:
+run_as_user: 
+cron_weekday:
+file: 
